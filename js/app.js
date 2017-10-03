@@ -424,6 +424,10 @@
 				$sidebar.removeClass('hidden');
 			}
 
+			if (this._messageCollection !== undefined) {
+				this._messageCollection.stopReceivingMessages();
+			}
+
 			this._messageCollection = new OCA.SpreedMe.Models.MessageCollection(null, {token: token});
 			this._messageCollection.receiveMessages();
 			this._chatView = new OCA.SpreedMe.Views.ChatView({collection: this._messageCollection});
