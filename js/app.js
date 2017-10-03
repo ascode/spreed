@@ -362,13 +362,6 @@
 					room.set('active', room.get('token') === token);
 				});
 			}
-
-			this._messagesCollection = new OCA.SpreedMe.Models.MessageCollection({chatId: token});
-			this._messagesCollection.receiveMessages();
-			this._chatView = new OCA.SpreedMe.Views.ChatView({collection: this._messagesCollection});
-
-			$('.tabsContainer .chat').remove();
-			$('.tabsContainer').append(this._chatView.render().$el);
 		},
 		addParticipantToRoom: function(token, participant) {
 			$.post(
@@ -399,6 +392,7 @@
 								self.setPageTitle(room.get('displayName'));
 							}
 						});
+						self.refreshChat(token);
 					});
 			} else {
 				$.ajax({
@@ -414,9 +408,28 @@
 						if (Object.keys(data.participants).length > 5) {
 							self.disableVideo();
 						}
+						self.refreshChat(token);
 					}
 				});
 			}
+		},
+		refreshChat: function(token) {
+			var $content = $('#app-content'),
+				$sidebar = $content.find('#app-sidebar');
+
+			// TODO Temporal hack until there is proper sidebar support to
+			// ensure that the sidebar is visible.
+			if (!$content.hasClass('with-app-sidebar')) {
+				$content.addClass('with-app-sidebar');
+				$sidebar.removeClass('hidden');
+			}
+
+			this._messageCollection = new OCA.SpreedMe.Models.MessageCollection(null, {token: token});
+			this._messageCollection.receiveMessages();
+			this._chatView = new OCA.SpreedMe.Views.ChatView({collection: this._messageCollection});
+
+			$('.tabsContainer .chat').remove();
+			$('.tabsContainer').append(this._chatView.render().$el);
 		},
 		setPageTitle: function(title){
 			if (title) {
